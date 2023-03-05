@@ -138,6 +138,17 @@ namespace RocketExtensions.Models
                 return EParseResult.ParseFailed;
             }
 
+            if(t == typeof(decimal))
+            {
+                if(decimal.TryParse(input,out var value))
+                {
+                    result = (T) (object) value;
+                    return EParseResult.Parsed;
+                }
+
+                return EParseResult.ParseFailed;
+            }
+
             if (t == typeof(Player))
             {
                 var player = ParsePlayer(input);
