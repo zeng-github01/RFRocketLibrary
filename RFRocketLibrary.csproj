@@ -14,6 +14,7 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,26 +44,26 @@
       <HintPath>packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RocketMod\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\WorldBoss\WorldBoss\lib\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="com.rlabrecque.steamworks.net, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RFRocketMod\com.rlabrecque.steamworks.net.dll</HintPath>
+      <HintPath>..\..\WorldBoss\WorldBoss\lib\com.rlabrecque.steamworks.net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.API, Version=4.9.3.4, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RFRocketMod\Rocket.API.dll</HintPath>
+    <Reference Include="Rocket.API">
+      <HintPath>..\..\RandomLottery\RandomLottery\lib\Rocket.API.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Core, Version=4.9.3.4, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RFRocketMod\Rocket.Core.dll</HintPath>
+    <Reference Include="Rocket.Core">
+      <HintPath>..\..\WorldBoss\WorldBoss\lib\Rocket.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Unturned, Version=4.9.3.13, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RFRocketMod\Rocket.Unturned.dll</HintPath>
+    <Reference Include="Rocket.Unturned">
+      <HintPath>..\..\RandomLottery\RandomLottery\lib\Rocket.Unturned.dll</HintPath>
     </Reference>
     <Reference Include="SDG.NetTransport, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RFRocketMod\SDG.NetTransport.dll</HintPath>
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\U3DS\Unturned_Data\Managed\SDG.NetTransport.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -85,16 +86,16 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RocketMod\UnityEngine.dll</HintPath>
+      <HintPath>..\..\RandomLottery\RandomLottery\lib\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RocketMod\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\RandomLottery\RandomLottery\lib\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Libraries\RocketMod\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\U3DS\Unturned_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEx">
-      <HintPath>..\..\Libraries\RFRocketMod\UnityEx.dll</HintPath>
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\U3DS\Unturned_Data\Managed\UnityEx.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

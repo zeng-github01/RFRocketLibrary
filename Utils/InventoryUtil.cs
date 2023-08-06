@@ -84,6 +84,48 @@ namespace RFRocketLibrary.Utils
             }
         }
 
+        public static void ClearInventoryWithoutClothes(UnturnedPlayer player)
+        {
+            try
+            {
+                var playerInv = player.Inventory;
+
+                // "Remove "models" of items from player "body""
+                for (byte index = 0; index < player.Inventory.getItemCount(0); index++)
+                {
+                    var item = player.Inventory.getItem(0, index);
+                    if (item != null)
+                        player.Inventory.removeItem(0, index);
+                }
+
+                player.Player.equipment.sendSlot(0);
+
+                for (byte index = 0; index < player.Inventory.getItemCount(1); index++)
+                {
+                    var item = player.Inventory.getItem(1, index);
+                    if (item != null)
+                        player.Inventory.removeItem(1, index);
+                }
+
+                player.Player.equipment.sendSlot(1);
+
+                // Remove items
+                for (byte page = 0; page < 7; page++)
+                {
+                    var count = playerInv.getItemCount(page);
+
+                    for (byte index = 0; index < count; index++)
+                        playerInv.removeItem(page, 0);
+                }
+            }
+            catch (Exception e)
+            {
+                var caller = new StackTrace().GetFrame(1).GetMethod().ReflectedType.Assembly.GetName().Name;
+                Logger.LogError($"[{caller}] [ERROR] InventoryUtil ClearInventory: {e.Message}");
+                Logger.LogError($"[{caller}] [ERROR] Details: {e}");
+            }
+        }
+
         #endregion
     }
 }
