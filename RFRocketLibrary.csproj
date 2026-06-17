@@ -155,6 +155,7 @@
     <Compile Include="Hooks\RFPlayerLibraryHook.cs" />
     <Compile Include="Hooks\UconomyPremiumHook.cs" />
     <Compile Include="Library.cs" />
+    <Compile Include="Models\Color32Wrapper.cs" />
     <Compile Include="Models\FaceWrapper.cs" />
     <Compile Include="Models\KeyListener.cs" />
     <Compile Include="Models\PlaneWrapper.cs" />

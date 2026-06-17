@@ -26,7 +26,7 @@ namespace RFRocketLibrary.Models
         public List<BarricadeWrapper> Barricades { get; set; } = new();
         public Vector3Wrapper Position { get; set; }
         public QuartenionWrapper Rotation { get; set; }
-        // public QuaternionWrapper Rotation { get; set; }
+        public Color32Wrapper PaintColor { get; set; }
 
         public VehicleWrapper()
         {
@@ -35,7 +35,7 @@ namespace RFRocketLibrary.Models
         public VehicleWrapper(ushort id, uint instanceId, ushort skinId, ushort mythicId, float roadPosition,
             ushort health, ushort fuel, ushort batteryCharge, ulong owner, ulong @group, bool[] tires,
             List<byte[]> turrets, ItemsWrapper trunkItems, List<BarricadeWrapper> barricades, Vector3Wrapper position,
-            QuartenionWrapper rotation)
+            QuartenionWrapper rotation, Color32Wrapper paintColor)
         {
             Id = id;
             InstanceId = instanceId;
@@ -53,6 +53,7 @@ namespace RFRocketLibrary.Models
             Barricades = barricades;
             Position = position;
             Rotation = rotation;
+            PaintColor = paintColor;
         }
 
         public static VehicleWrapper Create(InteractableVehicle vehicle)
@@ -76,13 +77,14 @@ namespace RFRocketLibrary.Models
                 Fuel = vehicle.fuel,
                 BatteryCharge = vehicle.batteryCharge,
                 Id = vehicle.id,
-                TrunkItems = vehicle.trunkItems?.items != null && vehicle.trunkItems.items.Count != 0
+                TrunkItems = vehicle.trunkItems?.getItemCount() > 0
                     ? ItemsWrapper.Create(vehicle.trunkItems)
                     : new ItemsWrapper(),
                 Tires = vehicle.tires?.Select(c => c.isAlive).ToArray() ?? Array.Empty<bool>(),
                 Turrets = vehicleTurret,
                 Group = vehicle.lockedGroup.m_SteamID,
                 Owner = vehicle.lockedOwner.m_SteamID,
+                PaintColor = vehicle.PaintColor
             };
 
             if (!BarricadeManager.tryGetPlant(vehicle.transform, out _, out _, out _, out var region))
@@ -119,7 +121,7 @@ namespace RFRocketLibrary.Models
             // Spawn Vehicle
             var vehicle = VehicleManager.SpawnVehicleV3(GetVehicleAsset(), SkinId, MythicId, RoadPosition, Position.ToVector3(),
                 Rotation.ToQuaternion(), false, false, false, false, Fuel, Health, BatteryCharge,
-                owner, group, Owner != 0, null, byte.MaxValue);
+                owner, group, Owner != 0, null, byte.MaxValue, PaintColor);
             
             // Set Tires
             for (var i = 0; i < (Tires?.Length ?? 0); i++)
@@ -130,7 +132,6 @@ namespace RFRocketLibrary.Models
             vehicle.sendTireAliveMaskUpdate();
 
             // Spawn Trunk Items
-            if (vehicle.trunkItems?.items != null && vehicle.trunkItems.items.Count != 0)
                 foreach (var item in TrunkItems.Items)
                     vehicle.trunkItems.addItem(item.X, item.Y, item.Rotation, item.Item.ToItem());
 
