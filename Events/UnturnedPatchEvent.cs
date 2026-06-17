@@ -32,7 +32,7 @@ namespace RFRocketLibrary.Events
         public delegate void BarricadeDestroyed(BarricadeDrop drop, byte x, byte y, ushort plant);
 
         public delegate void BarricadeTransformed(byte x, byte y, ushort plant, BarricadeDrop barricade, Vector3 point,
-            byte angle_x, byte angle_y, byte angle_z);
+            Quaternion rotation);
 
         public delegate void ItemSpawned(byte x, byte y, ushort id, byte amount, byte quality,
             byte[] state, Vector3 point, uint instanceID);
@@ -263,7 +263,7 @@ namespace RFRocketLibrary.Events
             ref bool blimp,
             ref bool headlights, ref bool taillights, ref ushort fuel, ref ushort health, ref ushort batteryCharge,
             ref CSteamID owner,
-            ref CSteamID group, ref bool locked, ref byte[][] turrets, ref byte tireAliveMask, ref bool shouldAllow);
+            ref CSteamID group, ref bool locked, ref byte[][] turrets, ref byte tireAliveMask, ref Color32 paintColor, ref bool shouldAllow);
 
         public delegate void PreVehicleSpawnedFromSpawnpoint(VehicleSpawnpoint vehicleSpawnpoint, ref bool shouldAllow);
 
@@ -285,8 +285,7 @@ namespace RFRocketLibrary.Events
 
         public delegate void StructureDestroyed(StructureDrop drop, byte x, byte y, Vector3 ragdoll);
 
-        public delegate void StructureTransformed(byte x, byte y, StructureDrop drop, Vector3 point, byte angle_x,
-            byte angle_y, byte angle_z);
+        public delegate void StructureTransformed(byte x, byte y, StructureDrop drop, Vector3 point, Quaternion rotation);
 
         public delegate void TankUpdated(BarricadeDrop drop, ushort amount);
 
@@ -1175,169 +1174,168 @@ namespace RFRocketLibrary.Events
                 OnRainBarrelUpdated?.Invoke(BarricadeUtil.FindDropFast(transform), isFull, shouldSend);
             }
 
-            //[HarmonyPatch(typeof(PlayerMovement), "simulate", typeof(uint), typeof(int), typeof(int), typeof(int),
-            //    typeof(float), typeof(float), typeof(bool), typeof(bool), typeof(float))]
-            //[HarmonyPrefix]
-            //internal static void OnPlayerMovementChangedInvoker(PlayerMovement __instance, out Vector3 __state,
-            //    HashSet<LandscapeHoleVolume> ___overlappingHoleVolumes, Vector3 ___velocity, string ___materialName,
-            //    uint simulation, int recov, int input_x, int input_y, float look_x, float look_y,
-            //    bool inputJump, bool inputSprint, float deltaTime)
-            //{
-            //    // var go = new GameObject
-            //    // {
-            //    //     transform =
-            //    //     {
-            //    //         position = __instance.transform.position,
-            //    //         rotation = __instance.transform.rotation
-            //    //     }
-            //    // };
-            //    // // Logger.LogWarning($"[DEBUG] Prefix Player Last: {__instance.transform.position}");
-            //    // // Logger.LogWarning($"[DEBUG] Prefix Temp Last: {go.transform.position}");
-            //    // var controller = go.AddComponent<CharacterController>();
-            //    // controller.center = controller.center;
-            //    // controller.height = controller.height;
-            //    // controller.radius = controller.radius;
-            //    // controller.detectCollisions = controller.detectCollisions;
-            //    // controller.skinWidth = controller.skinWidth;
-            //    // controller.slopeLimit = controller.slopeLimit;
-            //    // controller.stepOffset = controller.stepOffset;
-            //    // controller.enableOverlapRecovery = controller.enableOverlapRecovery;
-            //    // controller.minMoveDistance = controller.minMoveDistance;
-            //    //
-            //    // var move = new Vector3(input_x, 0f, input_y);
-            //    // if (__instance.player.stance.stance == EPlayerStance.CLIMB)
-            //    // {
-            //    //     controller.CheckedMove(
-            //    //         new Vector3(0f, input_y * __instance.speed * 0.5f, 0f) * deltaTime,
-            //    //         ___overlappingHoleVolumes is {Count: > 0});
-            //    // }
-            //    // else if (__instance.player.stance.stance == EPlayerStance.SWIM)
-            //    // {
-            //    //     if (__instance.player.stance.isSubmerged || (__instance.player.look.pitch > 110f && move.z > 0.1))
-            //    //     {
-            //    //         var velocity = __instance.player.look.aim.rotation * move.normalized * __instance.speed * 5f;
-            //    //         if (inputJump)
-            //    //             velocity.y = 3f * __instance.pluginJumpMultiplier;
-            //    //
-            //    //         controller.CheckedMove(velocity * deltaTime,
-            //    //             ___overlappingHoleVolumes is {Count: > 0});
-            //    //     }
-            //    //     else
-            //    //     {
-            //    //         WaterUtility.getUnderwaterInfo(__instance.transform.position, out _, out var num);
-            //    //         var velocity = __instance.transform.rotation * move.normalized * __instance.speed * 5f;
-            //    //         velocity.y = (num - 1.275f - __instance.transform.position.y) / 8f;
-            //    //         controller.CheckedMove(velocity * deltaTime,
-            //    //             ___overlappingHoleVolumes is {Count: > 0});
-            //    //     }
-            //    // }
-            //    // else
-            //    // {
-            //    //     var flag3 = false;
-            //    //     if (__instance.isGrounded && __instance.ground.normal.y > 0f)
-            //    //     {
-            //    //         var num2 = Vector3.Angle(Vector3.up, __instance.ground.normal);
-            //    //         var num3 = 59f;
-            //    //         if (Level.info != null && Level.info.configData != null &&
-            //    //             Level.info.configData.Max_Walkable_Slope > -0.5f)
-            //    //         {
-            //    //             num3 = Level.info.configData.Max_Walkable_Slope;
-            //    //         }
-            //    //
-            //    //         if (num2 > num3)
-            //    //         {
-            //    //             flag3 = true;
-            //    //             var a = Vector3.Cross(Vector3.Cross(Vector3.up, __instance.ground.normal),
-            //    //                 __instance.ground.normal);
-            //    //             ___velocity += a * 16f * deltaTime;
-            //    //         }
-            //    //     }
-            //    //
-            //    //     if (!flag3)
-            //    //     {
-            //    //         var vector = __instance.transform.rotation * move.normalized * __instance.speed * 5f;
-            //    //         if (__instance.isGrounded)
-            //    //         {
-            //    //             vector = Vector3.Cross(Vector3.Cross(Vector3.up, vector), __instance.ground.normal);
-            //    //             vector.y = Mathf.Min(vector.y, 0f);
-            //    //             // var ewipDoNotUseTemp_SlipMode = Traverse
-            //    //             //     .Create(Type.GetType("SDG.Unturned.PhysicMaterialCustomData"))
-            //    //             //     .Method("WipDoNotUseTemp_GetSlipMode")
-            //    //             //     .GetValue(___materialName) is EWipDoNotUseTemp_SlipMode ? (EWipDoNotUseTemp_SlipMode) Traverse
-            //    //             //     .Create(Type.GetType("SDG.Unturned.PhysicMaterialCustomData"))
-            //    //             //     .Method("WipDoNotUseTemp_GetSlipMode")
-            //    //             //     .GetValue(___materialName) : EWipDoNotUseTemp_SlipMode.None;
-            //    //             var ewipDoNotUseTemp_SlipMode = EWipDoNotUseTemp_SlipMode.None;
-            //    //             switch (ewipDoNotUseTemp_SlipMode)
-            //    //             {
-            //    //                 case EWipDoNotUseTemp_SlipMode.LegacyIce:
-            //    //                     ___velocity = Vector3.Lerp(___velocity, vector, deltaTime);
-            //    //                     break;
-            //    //                 case EWipDoNotUseTemp_SlipMode.LegacyMetal:
-            //    //                 {
-            //    //                     var num4 = __instance.ground.normal.y < 0.75f
-            //    //                         ? 0f
-            //    //                         : Mathf.Lerp(0f, 1f, (__instance.ground.normal.y - 0.75f) * 4f);
-            //    //                     ___velocity = Vector3.Lerp(___velocity, vector * 2f,
-            //    //                         __instance.isMoving ? (2f * deltaTime) : (0.5f * num4 * deltaTime));
-            //    //                     break;
-            //    //                 }
-            //    //                 default:
-            //    //                     ___velocity = vector;
-            //    //                     break;
-            //    //             }
-            //    //         }
-            //    //         else
-            //    //         {
-            //    //             ___velocity.y += Physics.gravity.y *
-            //    //                              (__instance.fall <= 0f ? __instance.totalGravityMultiplier : 1f) * deltaTime * 3f;
-            //    //             var a2 = __instance.totalGravityMultiplier < 0.99f
-            //    //                 ? Physics.gravity.y * 2f * __instance.totalGravityMultiplier
-            //    //                 : -100f;
-            //    //             ___velocity.y = Mathf.Max(a2, ___velocity.y);
-            //    //             var horizontalMagnitude = vector.GetHorizontalMagnitude();
-            //    //             var horizontal = ___velocity.GetHorizontal();
-            //    //             var horizontalMagnitude2 = ___velocity.GetHorizontalMagnitude();
-            //    //             float maxMagnitude;
-            //    //             if (horizontalMagnitude2 > horizontalMagnitude)
-            //    //             {
-            //    //                 var num5 = 2f * Provider.modeConfigData.Gameplay.AirStrafing_Deceleration_Multiplier;
-            //    //                 maxMagnitude = Mathf.Max(horizontalMagnitude, horizontalMagnitude2 - num5 * deltaTime);
-            //    //             }
-            //    //             else
-            //    //                 maxMagnitude = horizontalMagnitude;
-            //    //
-            //    //             var a3 = vector *
-            //    //                      (4f * Provider.modeConfigData.Gameplay.AirStrafing_Acceleration_Multiplier);
-            //    //             var vector2 = horizontal + a3 * deltaTime;
-            //    //             vector2 = vector2.ClampHorizontalMagnitude(maxMagnitude);
-            //    //             ___velocity.x = vector2.x;
-            //    //             ___velocity.z = vector2.z;
-            //    //         }
-            //    //     }
-            //    //
-            //    //     if (inputJump && __instance.isGrounded && !__instance.player.life.isBroken &&
-            //    //         __instance.player.life.stamina >= 10f * (1f - __instance.player.skills.mastery(0, 6) * 0.5f) &&
-            //    //         __instance.player.stance.stance is EPlayerStance.STAND or EPlayerStance.SPRINT &&
-            //    //         !MathfEx.IsNearlyZero(__instance.pluginJumpMultiplier, 0.001f))
-            //    //     {
-            //    //         ___velocity.y = 7f * (1f + __instance.player.skills.mastery(0, 6) * 0.25f) *
-            //    //                         __instance.pluginJumpMultiplier;
-            //    //     }
-            //    //
-            //    //     ___velocity += __instance.pendingLaunchVelocity;
-            //    //     __instance.pendingLaunchVelocity = Vector3.zero;
-            //    //     controller.CheckedMove(___velocity * deltaTime, ___overlappingHoleVolumes is {Count: > 0});
-            //    // }
-            //    //
-            //    // __state = go.transform.position;
-            //    // Object.Destroy(go);
-            //    //
-            //    // var shouldAllow = true;
-            //    // OnPrePlayerMovementChanged?.Invoke(__instance.player, __instance.transform.position, __state, ref shouldAllow);
-            //    // return shouldAllow;
-            //    __state = __instance.transform.position;
-            //}
+            [HarmonyPatch(typeof(PlayerMovement), "simulate", typeof(uint), typeof(int), typeof(bool), typeof(bool),
+                typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float))]
+            [HarmonyPrefix]
+            internal static void OnPlayerMovementChangedInvoker(PlayerMovement __instance, out Vector3 __state,
+                Vector3 ___velocity, string ___materialName,
+                uint simulation, int recov, bool inputBrake, bool inputStamina, Vector3 point, Quaternion rotation, float newSpeed, float newForwardVelocity, float newSteeringInput, float newVelocityInput, float delta)
+            {
+                // var go = new GameObject
+                // {
+                //     transform =
+                //     {
+                //         position = __instance.transform.position,
+                //         rotation = __instance.transform.rotation
+                //     }
+                // };
+                // // Logger.LogWarning($"[DEBUG] Prefix Player Last: {__instance.transform.position}");
+                // // Logger.LogWarning($"[DEBUG] Prefix Temp Last: {go.transform.position}");
+                // var controller = go.AddComponent<CharacterController>();
+                // controller.center = controller.center;
+                // controller.height = controller.height;
+                // controller.radius = controller.radius;
+                // controller.detectCollisions = controller.detectCollisions;
+                // controller.skinWidth = controller.skinWidth;
+                // controller.slopeLimit = controller.slopeLimit;
+                // controller.stepOffset = controller.stepOffset;
+                // controller.enableOverlapRecovery = controller.enableOverlapRecovery;
+                // controller.minMoveDistance = controller.minMoveDistance;
+                //
+                // var move = new Vector3(input_x, 0f, input_y);
+                // if (__instance.player.stance.stance == EPlayerStance.CLIMB)
+                // {
+                //     controller.CheckedMove(
+                //         new Vector3(0f, input_y * __instance.speed * 0.5f, 0f) * deltaTime,
+                //         ___overlappingHoleVolumes is {Count: > 0});
+                // }
+                // else if (__instance.player.stance.stance == EPlayerStance.SWIM)
+                // {
+                //     if (__instance.player.stance.isSubmerged || (__instance.player.look.pitch > 110f && move.z > 0.1))
+                //     {
+                //         var velocity = __instance.player.look.aim.rotation * move.normalized * __instance.speed * 5f;
+                //         if (inputJump)
+                //             velocity.y = 3f * __instance.pluginJumpMultiplier;
+                //
+                //         controller.CheckedMove(velocity * deltaTime,
+                //             ___overlappingHoleVolumes is {Count: > 0});
+                //     }
+                //     else
+                //     {
+                //         WaterUtility.getUnderwaterInfo(__instance.transform.position, out _, out var num);
+                //         var velocity = __instance.transform.rotation * move.normalized * __instance.speed * 5f;
+                //         velocity.y = (num - 1.275f - __instance.transform.position.y) / 8f;
+                //         controller.CheckedMove(velocity * deltaTime,
+                //             ___overlappingHoleVolumes is {Count: > 0});
+                //     }
+                // }
+                // else
+                // {
+                //     var flag3 = false;
+                //     if (__instance.isGrounded && __instance.ground.normal.y > 0f)
+                //     {
+                //         var num2 = Vector3.Angle(Vector3.up, __instance.ground.normal);
+                //         var num3 = 59f;
+                //         if (Level.info != null && Level.info.configData != null &&
+                //             Level.info.configData.Max_Walkable_Slope > -0.5f)
+                //         {
+                //             num3 = Level.info.configData.Max_Walkable_Slope;
+                //         }
+                //
+                //         if (num2 > num3)
+                //         {
+                //             flag3 = true;
+                //             var a = Vector3.Cross(Vector3.Cross(Vector3.up, __instance.ground.normal),
+                //                 __instance.ground.normal);
+                //             ___velocity += a * 16f * deltaTime;
+                //         }
+                //     }
+                //
+                //     if (!flag3)
+                //     {
+                //         var vector = __instance.transform.rotation * move.normalized * __instance.speed * 5f;
+                //         if (__instance.isGrounded)
+                //         {
+                //             vector = Vector3.Cross(Vector3.Cross(Vector3.up, vector), __instance.ground.normal);
+                //             vector.y = Mathf.Min(vector.y, 0f);
+                //             // var ewipDoNotUseTemp_SlipMode = Traverse
+                //             //     .Create(Type.GetType("SDG.Unturned.PhysicMaterialCustomData"))
+                //             //     .Method("WipDoNotUseTemp_GetSlipMode")
+                //             //     .GetValue(___materialName) is EWipDoNotUseTemp_SlipMode ? (EWipDoNotUseTemp_SlipMode) Traverse
+                //             //     .Create(Type.GetType("SDG.Unturned.PhysicMaterialCustomData"))
+                //             //     .Method("WipDoNotUseTemp_GetSlipMode")
+                //             //     .GetValue(___materialName) : EWipDoNotUseTemp_SlipMode.None;
+                //             var ewipDoNotUseTemp_SlipMode = EWipDoNotUseTemp_SlipMode.None;
+                //             switch (ewipDoNotUseTemp_SlipMode)
+                //             {
+                //                 case EWipDoNotUseTemp_SlipMode.LegacyIce:
+                //                     ___velocity = Vector3.Lerp(___velocity, vector, deltaTime);
+                //                     break;
+                //                 case EWipDoNotUseTemp_SlipMode.LegacyMetal:
+                //                 {
+                //                     var num4 = __instance.ground.normal.y < 0.75f
+                //                         ? 0f
+                //                         : Mathf.Lerp(0f, 1f, (__instance.ground.normal.y - 0.75f) * 4f);
+                //                     ___velocity = Vector3.Lerp(___velocity, vector * 2f,
+                //                         __instance.isMoving ? (2f * deltaTime) : (0.5f * num4 * deltaTime));
+                //                     break;
+                //                 }
+                //                 default:
+                //                     ___velocity = vector;
+                //                     break;
+                //             }
+                //         }
+                //         else
+                //         {
+                //             ___velocity.y += Physics.gravity.y *
+                //                              (__instance.fall <= 0f ? __instance.totalGravityMultiplier : 1f) * deltaTime * 3f;
+                //             var a2 = __instance.totalGravityMultiplier < 0.99f
+                //                 ? Physics.gravity.y * 2f * __instance.totalGravityMultiplier
+                //                 : -100f;
+                //             ___velocity.y = Mathf.Max(a2, ___velocity.y);
+                //             var horizontalMagnitude = vector.GetHorizontalMagnitude();
+                //             var horizontal = ___velocity.GetHorizontal();
+                //             var horizontalMagnitude2 = ___velocity.GetHorizontalMagnitude();
+                //             float maxMagnitude;
+                //             if (horizontalMagnitude2 > horizontalMagnitude)
+                //             {
+                //                 var num5 = 2f * Provider.modeConfigData.Gameplay.AirStrafing_Deceleration_Multiplier;
+                //                 maxMagnitude = Mathf.Max(horizontalMagnitude, horizontalMagnitude2 - num5 * deltaTime);
+                //             }
+                //             else
+                //                 maxMagnitude = horizontalMagnitude;
+                //
+                //             var a3 = vector *
+                //                      (4f * Provider.modeConfigData.Gameplay.AirStrafing_Acceleration_Multiplier);
+                //             var vector2 = horizontal + a3 * deltaTime;
+                //             vector2 = vector2.ClampHorizontalMagnitude(maxMagnitude);
+                //             ___velocity.x = vector2.x;
+                //             ___velocity.z = vector2.z;
+                //         }
+                //     }
+                //
+                //     if (inputJump && __instance.isGrounded && !__instance.player.life.isBroken &&
+                //         __instance.player.life.stamina >= 10f * (1f - __instance.player.skills.mastery(0, 6) * 0.5f) &&
+                //         __instance.player.stance.stance is EPlayerStance.STAND or EPlayerStance.SPRINT &&
+                //         !MathfEx.IsNearlyZero(__instance.pluginJumpMultiplier, 0.001f))
+                //     {
+                //         ___velocity.y = 7f * (1f + __instance.player.skills.mastery(0, 6) * 0.25f) *
+                //                         __instance.pluginJumpMultiplier;
+                //     }
+                //
+                //     ___velocity += __instance.pendingLaunchVelocity;
+                //     __instance.pendingLaunchVelocity = Vector3.zero;
+                //     controller.CheckedMove(___velocity * deltaTime, ___overlappingHoleVolumes is {Count: > 0});
+                // }
+                //
+                // __state = go.transform.position;
+                // Object.Destroy(go);
+                //
+                // var shouldAllow = true;
+                // OnPrePlayerMovementChanged?.Invoke(__instance.player, __instance.transform.position, __state, ref shouldAllow);
+                // return shouldAllow;
+                __state = __instance.transform.position;
+            }
 
             [HarmonyPatch(typeof(PlayerMovement), "simulate", typeof(uint), typeof(int), typeof(int), typeof(int),
                 typeof(float), typeof(float), typeof(bool), typeof(bool), typeof(float))]
@@ -1459,30 +1457,73 @@ namespace RFRocketLibrary.Events
                 OnVehicleSpawnedFromSpawnpoint?.Invoke(spawn, __result);
             }
 
-            [HarmonyPatch(typeof(VehicleManager), "SpawnVehicleV3")]
+            [HarmonyPatch(typeof(VehicleManager))]
+            [HarmonyPatch("SpawnVehicleV3")]
+            [HarmonyPatch(new Type[] {
+            typeof(VehicleAsset),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(float),
+            typeof(Vector3),
+            typeof(Quaternion),
+            typeof(bool),
+            typeof(bool),
+            typeof(bool),
+            typeof(bool),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(CSteamID),
+            typeof(CSteamID),
+            typeof(bool),
+            typeof(byte[][]),
+            typeof(byte),
+            typeof(Color32)
+            })]
             [HarmonyPrefix]
             internal static bool OnPreVehicleSpawnedInvoker(out bool __state, ref VehicleAsset asset, ref ushort skinID,
                 ref ushort mythicID, ref float roadPosition, ref Vector3 point, ref Quaternion angle, ref bool sirens,
                 ref bool blimp,
                 ref bool headlights, ref bool taillights, ref ushort fuel, ref ushort health, ref ushort batteryCharge,
                 ref CSteamID owner,
-                ref CSteamID group, ref bool locked, ref byte[][] turrets, ref byte tireAliveMask)
+                ref CSteamID group, ref bool locked, ref byte[][] turrets, ref byte tireAliveMask, ref Color32 paintColor)
             {
                 var shouldAllow = true;
                 OnPreVehicleSpawned?.Invoke(ref asset, ref skinID, ref mythicID, ref roadPosition, ref point, ref angle,
                     ref sirens, ref blimp, ref headlights, ref taillights, ref fuel, ref health, ref batteryCharge,
-                    ref owner, ref group, ref locked, ref turrets, ref tireAliveMask, ref shouldAllow);
+                    ref owner, ref group, ref locked, ref turrets, ref tireAliveMask, ref paintColor, ref shouldAllow);
                 __state = shouldAllow;
                 return shouldAllow;
             }
 
             [HarmonyPatch(typeof(VehicleManager), "SpawnVehicleV3")]
+            [HarmonyPatch(new Type[] {
+            typeof(VehicleAsset),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(float),
+            typeof(Vector3),
+            typeof(Quaternion),
+            typeof(bool),
+            typeof(bool),
+            typeof(bool),
+            typeof(bool),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(ushort),
+            typeof(CSteamID),
+            typeof(CSteamID),
+            typeof(bool),
+            typeof(byte[][]),
+            typeof(byte),
+            typeof(Color32)
+            })]
             [HarmonyPostfix]
             internal static void OnPreVehicleSpawnedInvoker(bool __state,
                 InteractableVehicle __result,
                 VehicleAsset asset, ushort skinID, ushort mythicID, float roadPosition, Vector3 point, Quaternion angle,
                 bool sirens, bool blimp, bool headlights, bool taillights, ushort fuel, ushort health,
-                ushort batteryCharge, CSteamID owner, CSteamID group, bool locked, byte[][] turrets, byte tireAliveMask)
+                ushort batteryCharge, CSteamID owner, CSteamID group, bool locked, byte[][] turrets, byte tireAliveMask, Color32 paintColor)
             {
                 if (!__state)
                     return;
@@ -1517,13 +1558,13 @@ namespace RFRocketLibrary.Events
             }
 
             [HarmonyPatch(typeof(InteractableVehicle), "simulate", typeof(uint), typeof(int),
-                typeof(bool), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(int),
-                typeof(float))]
+                typeof(bool), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(float),
+                typeof(float), typeof(float))]
             [HarmonyPrefix]
             internal static void OnVehicleMovementChangedByPlayerInvoker(InteractableVehicle __instance,
                 out Vector3 __state,
                 Vector3 ___lastUpdatedPos, uint simulation, int recov, bool inputStamina,
-                Vector3 point, Quaternion angle, float newSpeed, float newPhysicsSpeed, int newTurn, float delta)
+                Vector3 point, Quaternion angle, float newSpeed, float newForwardVelocity, float newSteeringInput, float newVelocityInput, float delta)
             {
                 // var shouldAllow = true;
                 // OnPreVehicleMovementChangedByPlayer?.Invoke(__instance,
@@ -1531,19 +1572,19 @@ namespace RFRocketLibrary.Events
                 // return shouldAllow;
                 __state = ___lastUpdatedPos;
             }
-
+            //uint simulation, int recov, bool inputStamina, Vector3 point, Quaternion angle, float newSpeed, float newForwardVelocity, float newSteeringInput, float newVelocityInput, float delta
             [HarmonyPatch(typeof(InteractableVehicle), "simulate", typeof(uint), typeof(int),
-                typeof(bool), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(int),
-                typeof(float))]
+                typeof(bool), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(float),
+                typeof(float), typeof(float))]
             [HarmonyPostfix]
             internal static void OnVehicleMovementChangedByPlayerInvoker(InteractableVehicle __instance, Vector3 __state, uint simulation, int recov, bool inputStamina,
-                Vector3 point, Quaternion angle, float newSpeed, float newPhysicsSpeed, int newTurn, float delta)
+                Vector3 point, Quaternion angle, float newSpeed, float newForwardVelocity, float newSteeringInput, float newVelocityInput, float delta)
             {
                 OnVehicleMovementChangedByPlayer?.Invoke(__instance,
                     __instance.passengers.ElementAtOrDefault(0)?.player?.player, __state);
             }
 
-            [HarmonyPatch(typeof(InteractableVehicle), "updateSafezoneStatus")]
+            [HarmonyPatch(typeof(InteractableVehicle), "UpdateSafezoneStatus")]
             [HarmonyPrefix]
             internal static void OnVehicleMovementChangedInvoker(InteractableVehicle __instance, out Vector3 __state,
                 Vector3 ___lastUpdatedPos, float deltaSeconds)
@@ -1551,7 +1592,7 @@ namespace RFRocketLibrary.Events
                 __state = ___lastUpdatedPos;
             }
 
-            [HarmonyPatch(typeof(InteractableVehicle), "updateSafezoneStatus")]
+            [HarmonyPatch(typeof(InteractableVehicle), "UpdateSafezoneStatus")]
             [HarmonyPostfix]
             internal static void OnVehicleMovementChangedInvoker(InteractableVehicle __instance,
                 Vector3 __state, float deltaSeconds)
@@ -1627,9 +1668,9 @@ namespace RFRocketLibrary.Events
             [HarmonyPatch(typeof(BarricadeManager), "InternalSetBarricadeTransform")]
             [HarmonyPostfix]
             internal static void OnBarricadeTransformedInvoker(byte x, byte y, ushort plant,
-                BarricadeDrop barricade, Vector3 point, byte angle_x, byte angle_y, byte angle_z)
+                BarricadeDrop barricade, Vector3 point, Quaternion rotation)
             {
-                OnBarricadeTransformed?.Invoke(x, y, plant, barricade, point, angle_x, angle_y, angle_z);
+                OnBarricadeTransformed?.Invoke(x, y, plant, barricade, point, rotation);
             }
 
             [HarmonyPatch(typeof(BarricadeManager), "destroyBarricade")]
@@ -1880,9 +1921,9 @@ namespace RFRocketLibrary.Events
             [HarmonyPatch(typeof(StructureManager), "InternalSetStructureTransform")]
             [HarmonyPostfix]
             internal static void OnStructureTransformedInvoker(byte x, byte y, StructureDrop drop,
-                Vector3 point, byte angle_x, byte angle_y, byte angle_z)
+                Vector3 point, Quaternion rotation)
             {
-                OnStructureTransformed?.Invoke(x, y, drop, point, angle_x, angle_y, angle_z);
+                OnStructureTransformed?.Invoke(x, y, drop, point, rotation);
             }
 
             [HarmonyPatch(typeof(StructureManager), "destroyStructure")]
