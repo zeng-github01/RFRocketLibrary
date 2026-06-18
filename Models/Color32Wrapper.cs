@@ -103,22 +103,18 @@ namespace RFRocketLibrary.Models
         }
     }
 
-    public class Color32WrapperConverter : JsonConverter
+    public class Color32WrapperConverter : JsonConverter<Color32Wrapper>
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Color32Wrapper value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, value?.ToString());
+            serializer.Serialize(writer, value.ToString());
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override Color32Wrapper ReadJson(JsonReader reader, Type objectType, Color32Wrapper existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             Color32Wrapper.TryParse(reader.Value?.ToString(), out var result);
             return result;
-        }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(Color32Wrapper).IsAssignableFrom(objectType);
         }
     }
 }

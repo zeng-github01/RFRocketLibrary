@@ -71,22 +71,17 @@ namespace RFRocketLibrary.Models
     }
     
     
-    public class Vector2WrapperConverter : JsonConverter
+    public class Vector2WrapperConverter : JsonConverter<Vector2Wrapper>
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Vector2Wrapper value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, value?.ToString());
+            serializer.Serialize(writer, value.ToString());
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override Vector2Wrapper ReadJson(JsonReader reader, Type objectType, Vector2Wrapper existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             Vector2Wrapper.TryParse(reader.Value?.ToString(), out var result);
             return result;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(Vector2Wrapper).IsAssignableFrom(objectType);
         }
     }
 }
