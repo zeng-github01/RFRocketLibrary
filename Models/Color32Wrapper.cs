@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -99,6 +100,25 @@ namespace RFRocketLibrary.Models
             }
 
             return false;
+        }
+    }
+
+    public class Color32WrapperConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value?.ToString());
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            Color32Wrapper.TryParse(reader.Value?.ToString(), out var result);
+            return result;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return typeof(Color32Wrapper).IsAssignableFrom(objectType);
         }
     }
 }
