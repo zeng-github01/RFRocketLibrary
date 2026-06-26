@@ -1572,7 +1572,7 @@ namespace RFRocketLibrary.Events
                 // return shouldAllow;
                 __state = ___lastUpdatedPos;
             }
-            //uint simulation, int recov, bool inputStamina, Vector3 point, Quaternion angle, float newSpeed, float newForwardVelocity, float newSteeringInput, float newVelocityInput, float delta
+
             [HarmonyPatch(typeof(InteractableVehicle), "simulate", typeof(uint), typeof(int),
                 typeof(bool), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(float),
                 typeof(float), typeof(float))]
